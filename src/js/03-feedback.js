@@ -7,30 +7,33 @@ const inputFormEl = document.querySelector('.feedback-form');
 inputFormEl.addEventListener('input', throttle(handlerInput, 500));
 inputFormEl.addEventListener('submit', handlerSubmit);
 
-const data = JSON.parse(localStorage.getItem(LOCALSTORAGE_KEY)) ?? {};
-
-if (Object.keys(data).length) {
-  inputFormEl.querySelector('input[name=email]').value = data.email;
-  inputFormEl.querySelector('textarea[name=message]').textContent =
-    data.message;
-}
+let feedbackFormState = {};
 
 function handlerInput(evt) {
-  data[evt.target.name] = evt.target.value;
-  localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(data));
+  feedbackFormState[evt.target.name] = evt.target.value;
+  localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(feedbackFormState));
 }
 
 function handlerSubmit(evt) {
   evt.preventDefault();
-  if (Object.keys(data).length) {
-    console.log(data);
-  }
-  dataCleaner(evt, data);
-}
-
-function dataCleaner(evt, data) {
   localStorage.removeItem(LOCALSTORAGE_KEY);
   evt.target.reset();
-  evt.target.querySelector('textarea[name=message]').textContent = '';
-  Object.keys(data).forEach(key => delete data[key]);
+  feedbackFormState = {};
 }
+
+const onLoad = () => {
+  try {
+    const data = localStorage.getItem(LOCALSTORAGE_KEY);
+    if (!data) {
+      return;
+    }
+    feedbackFormState = JSON.parse(data);
+    Object.entries(feedbackFormState).forEach(([key, val]) => {
+      inputFormEl.elements[key].value = val;
+    });
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+window.addEventListener('load', onLoad);
