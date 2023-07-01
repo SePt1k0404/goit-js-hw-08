@@ -18,6 +18,7 @@ function handlerSubmit(evt) {
   evt.preventDefault();
   localStorage.removeItem(LOCALSTORAGE_KEY);
   evt.target.reset();
+  console.log(feedbackFormState);
   feedbackFormState = {};
 }
 
